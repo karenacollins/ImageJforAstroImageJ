@@ -77,6 +77,9 @@ class FitsDecoder {
 	private DataInputStream f;
 	private StringBuffer info = new StringBuffer(512);
 	double bscale = 1.0, bzero = 0.0;
+    boolean extensions=false;
+    String simpleLine = "";
+    int naxis = -1;
 
 	public FitsDecoder(String directory, String fileName) {
 		this.directory = directory;
@@ -91,7 +94,7 @@ class FitsDecoder {
 		fi.width = 0;
 		fi.height = 0;
 		fi.offset = 0;
-
+        
 		InputStream is = new FileInputStream(directory + fileName);
 		if (fileName.toLowerCase().endsWith(".gz")) is = new GZIPInputStream(is);
 		f = new DataInputStream(is);
@@ -99,12 +102,17 @@ class FitsDecoder {
 		info.append(line+"\n");
 		if (!line.startsWith("SIMPLE"))
 			{f.close(); return null;}
+        else
+            {
+            simpleLine = line;
+            }
 		int count = 1;
 		while ( true ) {
 			count++;
 			line = getString(80);
 			info.append(line+"\n");
-  
+            //IJ.log(line);
+            
 			// Cut the key/value pair
 			int index = line.indexOf ( "=" );
 
@@ -124,8 +132,26 @@ class FitsDecoder {
 				value = "";
 			}
 			
+            if (key.equals ("XTENSION") && value.contains("IMAGE") )
+                {
+                info = new StringBuffer(512);
+                info.append(simpleLine+"\n");
+                //IJ.log("******************New Extension******************");
+                continue;
+                }                
+                
+            if (key.equals ("EXTEND") && value.contains("T") && naxis < 1) extensions = true;
 			// Time to stop ?
-			if (key.equals ("END") ) break;
+			if (key.equals ("END"))
+                {
+                if (extensions==false) break;
+                else 
+                    {
+                    extensions=false;
+                    info = new StringBuffer(512);
+                    continue;
+                    }
+                }
 
 			// Look for interesting information			
 			if (key.equals("BITPIX")) {
@@ -155,6 +181,8 @@ class FitsDecoder {
 				bscale = Tools.parseDouble(value, 1.0);
 			else if (key.equals("BZERO"))
 				bzero = Tools.parseDouble(value, 0.0);
+            else if (key.equals("NAXIS"))
+                naxis = Integer.parseInt( value );
 //            else if (key.equals("CDELT1"))                //LET WCS TAKE CARE OF ADDING THIS INFO
 //                fi.pixelWidth = Math.abs(Tools.parseDouble(value, 1.0));
 //            else if (key.equals("CDELT2"))
