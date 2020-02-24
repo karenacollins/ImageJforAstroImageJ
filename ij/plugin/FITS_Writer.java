@@ -42,10 +42,27 @@ public class FITS_Writer implements PlugIn {
 		}
 
 		// GET FILE
-		File f = new File(path);
-		String directory = f.getParent()+File.separator;
-		String name = f.getName();
-		if (f.exists()) f.delete();
+//		File f = new File(path);
+//		String directory = f.getParent()+File.separator;
+//		String name = f.getName();
+//		if (f.exists()) 
+//            {
+//            f.delete();
+//            
+//            }
+//        int iter = 0;
+//        while (f.exists())
+//            {
+//            iter++;
+//            IJ.wait(100);
+//            //IJ.log("Waiting on file delete");
+//            if (iter > 50)
+//                {
+//                IJ.error("Could not delete existing fits file.");
+//                return;
+//                }
+//            }
+        
 		int numBytes = 0;
         
         cal = imp.getCalibration();
@@ -93,6 +110,7 @@ public class FITS_Writer implements PlugIn {
 //		if (hdr == null)
 //			createHeader(path, ip, numBytes);
 //		else
+        clearFile(path);
         createHeader(hdr, path, ip, numBytes);
 
 		// WRITE DATA
@@ -176,6 +194,20 @@ public class FITS_Writer implements PlugIn {
 			return;
 		}
 	}
+    
+    /**
+	 * Restarts file at 'path' to beginning of file
+	 */
+	void clearFile(String path) {
+		try {
+			FileWriter output = new FileWriter(path, false);
+			output.close();
+		}
+		catch (IOException e) {
+			IJ.showStatus("Error writing file!");
+			return;
+		}
+	}
 			
 	/**
 	 * Appends the data of the current image to the end of the file specified by path.
@@ -201,7 +233,7 @@ public class FITS_Writer implements PlugIn {
         else if (ip instanceof ShortProcessor) 
             {
 			short[] pixels = (short[])ip.getPixels();
-			try {   
+			try {
 				DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(path,true)));
                 for (int i = h - 1; i >= 0; i-- )
                     for (int j = i*w; j < w*(i+1); j++)
@@ -310,7 +342,26 @@ public class FITS_Writer implements PlugIn {
 	void createHeader(String[] hdr, String path, ImageProcessor ip, int numBytes) 
         {
 		String bitperpix = "";
-
+        int imw=ip.getWidth();
+        int imh=ip.getHeight();
+        String wbuf = "               ";
+        String hbuf = "               ";
+        if (imw < 10000)
+            wbuf = wbuf + " ";
+        if (imw < 1000)
+            wbuf = wbuf + " ";
+        if (imw < 100)
+            wbuf = wbuf + " ";
+        if (imw < 10)
+            wbuf = wbuf + " ";
+        if (imh < 10000)
+            hbuf = hbuf + " ";
+        if (imh < 1000)
+            hbuf = hbuf + " ";
+        if (imh < 100)
+            hbuf = hbuf + " ";
+        if (imh < 10)
+            hbuf = hbuf + " ";        
 		// THESE KEYWORDS NEED TO BE MADE CONFORMAL WITH THE PRESENT IMAGE
 		if      (numBytes==2) {bitperpix = "                  16";}
 		else if (numBytes==4) {bitperpix = "                 -32";}
@@ -318,8 +369,8 @@ public class FITS_Writer implements PlugIn {
  		appendFile(writeCard("SIMPLE", "                   T", "Created by ImageJ FITS_Writer"), path);
  		appendFile(writeCard("BITPIX", bitperpix, "number of bits per data pixel"), path);
  		appendFile(writeCard("NAXIS", "                   2", "number of data axes"), path);
-		appendFile(writeCard("NAXIS1", "                "+ip.getWidth(), "length of data axis 1"), path);
- 		appendFile(writeCard("NAXIS2", "                "+ip.getHeight(), "length of data axis 2"), path);
+		appendFile(writeCard("NAXIS1", wbuf + imw, "length of data axis 1"), path);
+ 		appendFile(writeCard("NAXIS2", hbuf + imh, "length of data axis 2"), path);
         if (bZero != 0 || bScale != 1.0)
             {
             appendFile(writeCard("BZERO", ""+bZero, "data range offset"), path);

@@ -18,6 +18,7 @@ import ij.io.Opener;
 import ij.util.*;
 import javax.swing.ImageIcon;
 
+
 /**
 This frame is the main ImageJ class.
 <p>
@@ -80,7 +81,7 @@ public class ImageJ extends Frame implements ActionListener,
 	public static final Font SansSerif12 = new Font("SansSerif", Font.PLAIN, 12);
 	/** Address of socket where Image accepts commands */
 	public static final int DEFAULT_PORT = 57294;
-    public static final String ASTROVERSION = "db3.2.21";
+    public static final String ASTROVERSION = "3.4.0.00";
 	
 	/** Run as normal application. */
 	public static final int STANDALONE=0;
@@ -175,7 +176,7 @@ public class ImageJ extends Frame implements ActionListener,
 		Dimension tbSize = toolbar.getPreferredSize();
 		int ijWidth = tbSize.width+10;
 		int ijHeight = 100;
-		setCursor(Cursor.getDefaultCursor()); // work-around for JDK 1.1.8 bug
+		setCursor(java.awt.Cursor.getDefaultCursor()); // work-around for JDK 1.1.8 bug
 		if (mode!=NO_SHOW) {
 			if (IJ.isWindows()) try {setIcon();} catch(Exception e) {}
 			setBounds(loc.x, loc.y, ijWidth, ijHeight); // needed for pack to work
@@ -222,7 +223,7 @@ public class ImageJ extends Frame implements ActionListener,
 		int width = icon.getIconWidth();
 		int height = icon.getIconHeight();
 		Point hotSpot = new Point(width/2, height/2);
-		Cursor crosshairCursor = toolkit.createCustomCursor(image, hotSpot, "crosshair-cursor.gif");
+		java.awt.Cursor crosshairCursor = toolkit.createCustomCursor(image, hotSpot, "crosshair-cursor.gif");
 		ImageCanvas.setCursor(crosshairCursor, 0);
 		//IJ.log(width+" "+height+" "+toolkit.getBestCursorSize(width,height));
 	}

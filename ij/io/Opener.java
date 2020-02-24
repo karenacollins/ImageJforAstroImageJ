@@ -839,9 +839,12 @@ public class Opener {
 				DICOM dcm = new DICOM(zis);
 				dcm.run(name);
 				imp = dcm;
+			} else if (name.endsWith(".fts") || name.endsWith(".fits") || name.endsWith(".fit") || name.endsWith("fts.fz") || name.endsWith(".fits.fz") || name.endsWith(".fit.fz")) {
+                imp = (ImagePlus)IJ.runPlugIn("ij.plugin.FITS_Reader", path+'\\'+name.replace('/', '\\'));
+				if (imp.getWidth()!=0) return imp; else return null;                
 			} else {
 				zis.close();
-				IJ.error("This ZIP archive does not appear to contain a \nTIFF (\".tif\") or DICOM (\".dcm\") file, or ROIs (\".roi\").");
+				IJ.error("This ZIP archive does not appear to contain a \nTIFF (\".tif\") or DICOM (\".dcm\") or FITS file, or ROIs (\".roi\").");
 				return null;
 			}
 		} catch (Exception e) {
@@ -1037,7 +1040,7 @@ public class Opener {
 			return ZIP;
 
 		// FITS ("SIMP")
-		if ((b0==83 && b1==73 && b2==77 && b3==80) || name.endsWith(".fts.gz") || name.endsWith(".fits.gz") || name.endsWith(".fit.gz"))
+		if ((b0==83 && b1==73 && b2==77 && b3==80) || name.endsWith(".fts.gz") || name.endsWith(".fits.gz") || name.endsWith(".fit.gz") || name.endsWith(".fts.fz") || name.endsWith(".fits.fz") || name.endsWith(".fit.fz"))
 			return FITS;
 			
 		// Java source file, text file or macro
