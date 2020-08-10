@@ -104,7 +104,7 @@ public class FITS_Writer implements PlugIn {
             }
 
 		int fillerLength = 2880 - ( (numBytes * imp.getWidth() * imp.getHeight()) % 2880 );
-
+        if (fillerLength == 2880) fillerLength = 0;
 		// WRITE FITS HEADER
 		String[] hdr = getHeader(imp);
 //		if (hdr == null)
@@ -400,6 +400,7 @@ public class FITS_Writer implements PlugIn {
 
         // FINISH OFF THE HEADER
         int fillerSize = 2880 - ((numCards*80+3) % 2880);
+        if (fillerSize == 2880) fillerSize = 0;
         char[] end = new char[3];
         end[0] = 'E'; end[1] = 'N'; end[2] = 'D';
         char[] filler = new char[fillerSize];

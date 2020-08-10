@@ -95,14 +95,30 @@ public class Memory implements PlugIn {
 	public long getMemorySetting() {
 		if (IJ.getApplet()!=null) return 0L;
 		long max = 0L;
-		if (IJ.isMacOSX()) {
+        String[] versionPieces = IJ.getAstroVersion().split("\\.");
+        int majorVersion = Integer.parseInt(versionPieces[0]);
+		if (IJ.isMacOSX()) 
+            {
 			if (IJ.is64Bit())
-				max = getMemorySetting("AstroImageJ64.app/Contents/Info.plist");
-			if (max==0L) {
+                {
+                if (majorVersion>3)
+                    {
+                    max = getMemorySetting("Contents/Info.plist");
+                    }
+                else
+                    {
+                    max = getMemorySetting("AstroImageJ64.app/Contents/Info.plist");
+                    }
+                }
+			if (max==0L) 
+                {
 				max = getMemorySetting("AstroImageJ.app/Contents/Info.plist");
-			}
-		} else
-			max = getMemorySetting("AstroImageJ.cfg");		
+                }
+            }
+        else
+            {
+			max = getMemorySetting("AstroImageJ.cfg");
+            }
 		return max;
 	}
 

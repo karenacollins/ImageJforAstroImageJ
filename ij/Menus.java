@@ -725,6 +725,17 @@ public class Menus {
 		if (name.equals("plugins")) return null;
 		return name;
     }
+    
+    /** Returns the specified ImageJ menu (e.g., "File>New") or null if it is not found. */
+	public static Menu getImageJMenu(String menuPath) {
+		if (menus==null)
+			return null;
+		if (menus.get(menuPath)!=null)
+			return getMenu(menuPath, false);
+		else
+			return null;
+	}
+    
 
 	static void addItemSorted(Menu menu, MenuItem item, int startingIndex) {
 		String itemLabel = item.getLabel();
